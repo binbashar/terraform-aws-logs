@@ -211,7 +211,11 @@ data "aws_iam_policy_document" "main" {
     }
     actions   = ["s3:GetBucketAcl"]
     resources = [local.bucket_arn]
+    # TODO: Here you should include a SourceAccount as explined here https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy.html#:~:text=Amazon%20S3%20bucket.-,granting%20aws%20config%20access%20to%20the%20amazon%20s3%20bucket,-Follow%20these%20steps
   }
+
+
+  # TODO: Include the BucketExietnceChec statement as shown here: https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy.html#:~:text=awsconfigbucketexistencecheck%22
 
   statement {
     sid    = "config-bucket-delivery"
@@ -223,9 +227,11 @@ data "aws_iam_policy_document" "main" {
     actions = ["s3:PutObject"]
     condition {
       test     = "StringEquals"
-      variable = "s3:x-amz-acl"
-      values   = ["bucket-owner-full-control"]
+      variable = "AWS:SourceAccount"
+      values   = var.config_source_accounts
     }
+
+    # TODO: This should be just one bucket
     resources = local.config_resources
   }
 
